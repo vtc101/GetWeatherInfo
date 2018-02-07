@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ShowWeatherFragment extends Fragment {
 
@@ -39,6 +40,9 @@ public class ShowWeatherFragment extends Fragment {
         super.onCreate(savedInstanceState);
         CallbackForVisibility callbackForVisibility = (CallbackForVisibility) getActivity();
         callbackForVisibility.frameAndRecyclerVisibility();
+        if (savedInstanceState != null){
+            searchWeather = (SearchWeather) savedInstanceState.getSerializable("searchWeather");
+        }
     }
 
     @Override

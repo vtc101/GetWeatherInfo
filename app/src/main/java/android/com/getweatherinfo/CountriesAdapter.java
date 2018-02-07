@@ -26,7 +26,7 @@ public class CountriesAdapter extends RecyclerView.Adapter<CountriesAdapter.MyVi
     private SearchWeather searchWeather;
     private static final String KEY = "78ab2b14f50bae7e4e0196f1b13b5c7a";
 
-    public CountriesAdapter(List<String> listCountries, Context context) {
+    CountriesAdapter(List<String> listCountries, Context context) {
         this.listCountries = listCountries;
         this.context = context;
     }
@@ -56,8 +56,9 @@ public class CountriesAdapter extends RecyclerView.Adapter<CountriesAdapter.MyVi
                     searchWeather = response.body();
                     ((MainActivity) context).
                             getSupportFragmentManager().
-                            beginTransaction().
+                            beginTransaction().addToBackStack(null).
                             replace(R.id.fl_container, new ShowWeatherFragment(searchWeather)).commit();
+
 
                 }else Toast.makeText(context, "Sorry,but i can't find data :)", Toast.LENGTH_SHORT).show();
             }

@@ -1,5 +1,6 @@
 package android.com.getweatherinfo;
 
+import android.com.getweatherinfo.SearchWeatherModels.SearchWeather;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.com.getweatherinfo.SearchCitiesModels.SearchCities;
@@ -7,6 +8,8 @@ import android.com.getweatherinfo.Utils.ApiServiceForSearchCities;
 import android.com.getweatherinfo.Utils.ApiUtilsSearchCity;
 import android.com.getweatherinfo.Utils.CallbackForVisibility;
 import android.content.Context;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private RecyclerView recyclerView;
     private ApiServiceForSearchCities apiServiceForSearchCities;
     private CountriesAdapter countriesAdapter;
+    SearchWeather searchWeather;
     private static final String KEY = "AIzaSyAlPAWLVgxYcs6XO2D7I1271-dr9KNwig0";
 
 
@@ -40,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         if (!isNetworkOnline()) {
             Toast.makeText(this, "connect to internet", Toast.LENGTH_LONG).show();
         }
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             Toast.makeText(this, "connect to internet", Toast.LENGTH_LONG).show();
         }
         Call<SearchCities> call = apiServiceForSearchCities.getNearbyPlacesByText(text, "(cities)", key);
+
         call.enqueue(new Callback<SearchCities>() {
             @Override
             public void onResponse(Call<SearchCities> call, Response<SearchCities> response) {
@@ -76,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                         String text = response.body().getPredictions().get(i).getDescription();
                         listCountries.add(text);
                     }
+
                 countriesAdapter = new CountriesAdapter(listCountries, MainActivity.this);
                 recyclerView.setAdapter(countriesAdapter);}
 
@@ -86,6 +91,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
     }
+
+    @Override
+    public void onBackPressed() {
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+        if (count > 0) {
+            if (recyclerView != null && frameLayout != null) {
+                recyclerView.setVisibility(View.VISIBLE);
+                frameLayout.setVisibility(View.GONE);
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            }
+        } else super.onBackPressed();
+    }
+
 
     @Override
     public boolean onQueryTextChange(String newText) {
@@ -116,6 +134,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public void frameAndRecyclerVisibility() {
+        if (searchView != null){
+            searchView.onActionViewCollapsed();
+        }
         if (recyclerView != null && frameLayout != null) {
             recyclerView.setVisibility(View.GONE);
             frameLayout.setVisibility(View.VISIBLE);
@@ -123,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         View view = this.getCurrentFocus();
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert imm != null;
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
